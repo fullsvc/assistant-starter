@@ -2,7 +2,7 @@ import httpx
 import asyncio
 
 
-async def fetch_async(url: str) -> dict:
+async def get_data(url: str) -> dict:
     '''
     Getting information from the website api
     
@@ -26,7 +26,7 @@ async def fetch_async(url: str) -> dict:
         return ''
 
 
-async def fetch_many_async() -> None:
+async def async_requests() -> None:
     ''' Multiple asynchronous requests '''
 
     services = {
@@ -34,7 +34,7 @@ async def fetch_many_async() -> None:
         'Useless facts': 'https://uselessfacts.jsph.pl//api/v2/facts/random',
     }
     print(f'Start async requersts')
-    tasks = [fetch_async(url=url) for url in services.values()]
+    tasks = [get_data(url) for url in services.values()]
     responses = await asyncio.gather(*tasks)
     data = [resp['data'] if 'data' in resp.keys() else resp['text'] for resp in responses]
 
@@ -49,7 +49,7 @@ async def async_main() -> None:
     ''' Main function '''
 
     print(f'Start Job')
-    summary = await fetch_many_async()
+    summary = await async_requests()
     print(f'End job')
 
 
