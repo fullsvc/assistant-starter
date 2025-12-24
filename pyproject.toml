@@ -10,7 +10,7 @@ requires-python = ">=3.12,<3.15"
 dependencies = [
     "python-dotenv (>=1.2.1,<2.0.0)",
     "asyncio (>=4.0.0,<5.0.0)",
-    "httpx (>=0.28.1,<0.29.0)"
+    "httpx (>=0.28.1,<0.29.0)",
 ]
 
 

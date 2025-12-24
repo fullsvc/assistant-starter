@@ -1,53 +1,58 @@
-import asyncio
 import httpx
+import asyncio
 
 
-async def get_data(url: str) -> str:
-    ''' Получаем данные из публичных источников '''
-    print(f'Получаем данные из {url}')
+async def fetch_async(url: str) -> dict:
+    '''
+    Getting information from the website api
+    
+    :param url: 
+        :lang: language
+        :count: number of fact requests
+    :type url: str
+    :return: json
+    '''
+    print(f' - Getting data from {url}')
     try:
-        async with httpx.AsyncClient(timeout=5) as client:
+        async with httpx.AsyncClient(timeout=7.0) as client:
             response = await client.get(url)
 
         response.raise_for_status()
-        print(f'Данные из {url} получены успешно; Status code: {response.status_code}')
-        body_text = response.text
-        return body_text
+        print(f'   - Data from {url} received successfully')
+        body_json = response.json()
+        return body_json
     except httpx.HTTPError as error:
-        print(f'Сбой получения данных из {url}; Ошибка: {error}')
+        print(f'Failure to receive data from {url}; Status code: {error}')
         return ''
-    
-    # https://cat-fact.herokuapp.com/facts
 
 
+async def fetch_many_async() -> None:
+    ''' Multiple asynchronous requests '''
 
-async def fetch_many_async():
     services = {
-        'cat_facts': 'https://cat-fact.herokuapp.com/facts?amount=3',
-        'dog_facts': 'http://dog-api.kinduff.com/api/facts?number=3',
+        'Cat facts': 'https://meowfacts.herokuapp.com/?lang=rus&count=3',
+        'Useless facts': 'https://uselessfacts.jsph.pl//api/v2/facts/random',
     }
-
-    print(f'Запускаем асинхронные запросы')
-    tasks = [get_data(url) for url in services.values()]
-    start = asyncio.get_event_loop().time()
+    print(f'Start async requersts')
+    tasks = [fetch_async(url=url) for url in services.values()]
     responses = await asyncio.gather(*tasks)
-    end_time = asyncio.get_event_loop().time()
-    total_time = end_time - start
-    print(f'Все запросы выполнились за {total_time:.2f}')
-    result = {}
-    for service_name, response_body in zip(services.keys(), responses):
-        result[service_name] = response_body
-        print(f'Сервис {service_name}')
-        print(f'Первые символы ответа {response_body[:70]}')
+    data = [resp['data'] if 'data' in resp.keys() else resp['text'] for resp in responses]
+
+    if data:
+        for service_name, data_info in zip(services.keys(), data):
+            print(f'{service_name}: {data_info}')
+    else:
+        print('No information available')
+
 
 async def async_main() -> None:
-    print(f'=====Началась асинхронная обработка HTTP =====')
-    summary = await fetch_many_async()
+    ''' Main function '''
 
-    print(f'=====Завершилась асинхронная обработка HTTP =====')
-    if not summary:
-        print('Пустой ответ')
+    print(f'Start Job')
+    summary = await fetch_many_async()
+    print(f'End job')
 
 
 if __name__ == '__main__':
     asyncio.run(async_main())
+
